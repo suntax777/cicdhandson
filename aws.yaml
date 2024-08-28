@@ -1,0 +1,36 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - main
+
+permission:
+  ontents: read
+  id-token: write
+
+jobs:
+  cd:
+    runs-on: ubuntu-latest
+    steps:
+    - name: ソースコードのチェックアウト
+      uses: actions/checkout@v4
+
+    - name: OIDC 連携により AWS の認証情報を取得する
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ap-northeast-1
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+    - name: ECR に認証する
+      uses: docker/login-actions@v3
+      with:
+        registry: ${{ secrets.AWS_ECR_URL }}
+
+    - Docker ビルドおよびプッシュを実行する
+      uses docker/build-push-action@v5
+      with:
+        push: true
+        tags: ${{ secrets.AWS_ECR_URL }}/${{ secrets.IMAGE_NAME }}:latest
+
+    - 
