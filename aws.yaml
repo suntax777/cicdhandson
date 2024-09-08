@@ -33,4 +33,18 @@ jobs:
         push: true
         tags: ${{ secrets.AWS_ECR_URL }}/${{ secrets.IMAGE_NAME }}:latest
 
-    - 
+    - name: 新しいタスク定義を作る
+      id: render-task-def
+      uses; aws-actions/amazon-ecs-rende-task-definition@v1
+      with;
+        task-definition; task-definition.json
+        container-name; ${{ secrets.CONTAINER_NAME}}
+        image; &{{ secrets.AWS_ECR_URL }}/${{ secrets.IMAGE_NAME }}:latest
+
+    - name: ECS にデプロイする
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+        service: ${{ secrets.ECS_SERVICE_NAME }}
+        cluster: ${{ secrets.ECS_CLOUSTER_NAME }}
+        
