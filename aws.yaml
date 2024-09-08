@@ -5,8 +5,8 @@ on:
     branches:
       - main
 
-permission:
-  ontents: read
+permissions:
+  contents: read
   id-token: write
 
 jobs:
@@ -27,19 +27,19 @@ jobs:
       with:
         registry: ${{ secrets.AWS_ECR_URL }}
 
-    - Docker ビルドおよびプッシュを実行する
-      uses docker/build-push-action@v5
+    - name: Docker ビルドおよびプッシュを実行する
+      uses: docker/build-push-action@v5
       with:
         push: true
         tags: ${{ secrets.AWS_ECR_URL }}/${{ secrets.IMAGE_NAME }}:latest
 
     - name: 新しいタスク定義を作る
       id: render-task-def
-      uses; aws-actions/amazon-ecs-rende-task-definition@v1
-      with;
-        task-definition; task-definition.json
-        container-name; ${{ secrets.CONTAINER_NAME}}
-        image; &{{ secrets.AWS_ECR_URL }}/${{ secrets.IMAGE_NAME }}:latest
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: ${{ secrets.CONTAINER_NAME}}
+        image: &{{ secrets.AWS_ECR_URL }}/${{ secrets.IMAGE_NAME }}:latest
 
     - name: ECS にデプロイする
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
